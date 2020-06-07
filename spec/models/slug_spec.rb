@@ -1,14 +1,13 @@
 require 'rails_helper'
 
 RSpec.describe Slug do
-  subject { described_class.new(origin_url: origin_url, active: active) }
-  let(:origin_url) { Faker::Internet.slug }
+  subject { described_class.new(origin_url: origin_url, slugified_slug: slugified_slug, active: active) }
+  let(:origin_url) { Faker::Internet.slug + " #{Time.now.to_i}" }
+  let(:slugified_slug) { nil }
   let(:active) { true }
 
-  it { is_expected.to validate_uniqueness_of(:slugified_slug) }
-
   describe '#slugify' do
-    subject { super().slugify }
+    subject { super().slugify(origin_url) }
 
     context 'when nil' do
       let(:origin_url) { nil }
@@ -68,7 +67,63 @@ RSpec.describe Slug do
       let(:origin_url) { 'this string has forty characters12345678' }
       
       it 'returns a string with 30 characters' do
-        expect(subject.length).to eq(30)
+        expect(subject.length).to eq(Slug::MAX_LENGTH)
+      end
+    end
+  end
+
+  describe 'validations' do
+    context 'without a slugified_slug' do
+      it "persists a new slug" do
+        expect { subject.save }.to change{ Slug.count }.by(1)
+      end
+
+      it 'slugifies off the origin_url' do
+        subject.save
+        expect(subject.slugified_slug).to eq(subject.slugify(origin_url))
+      end
+    end
+
+    context 'with a provided slugified_slug' do
+      let(:slugified_slug) { "I want to manually override this slug" }
+
+      it "persists a new slug" do
+        expect { subject.save }.to change{ Slug.count }.by(1)
+      end
+      
+      it 'persists a slugified/sanitized slug' do
+        subject.save
+        expect(subject.slugified_slug).to eq(subject.slugify(slugified_slug))
+      end
+    end
+
+    context 'when slug collision occurs' do
+      context 'without a prior collision' do
+        before { Slug.create(origin_url: "goldbelly.com/unique_treat", slugified_slug: "goldbelly.com/unique_treat") }
+        let(:slugified_slug) { "goldbelly.com/unique_treat" }
+
+        it 'persists a new slug' do
+          expect { subject.save }.to change{ Slug.count }.by(1)
+        end
+
+        it 'appends a version number onto the sanitized slugified_slug' do
+          subject.save
+          expect(subject.slugified_slug).to eq('goldbelly-com-unique-treat-1')
+        end
+      end
+
+      context 'with prior collisions' do
+        before { Slug.create(origin_url: "goldbelly.com/unique_treat", slugified_slug: "goldbelly-com-unique-treat-5") }
+        let(:slugified_slug) { "goldbelly-com-unique-treat-5" }
+
+        it 'persists a new slug' do
+          expect { subject.save }.to change{ Slug.count }.by(1)
+        end
+
+        it 'increments the version onto the sanitized slugified_slug' do
+          subject.save
+          expect(subject.slugified_slug).to eq('goldbelly-com-unique-treat-6')
+        end        
       end
     end
   end

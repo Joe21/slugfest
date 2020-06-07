@@ -12,27 +12,35 @@ class Slugs::SlugsController < ApplicationController
 
   # slugify the string http://localhost:3000/slugs/slugify?url=abc
   def slugify
-    slugified = Slug.new(origin_url: params[:slug]).slugify
+    slugified = Slug.new.slugify(params[:url])
     render json: { slugified_slug: slugified }, status: 200
   end
 
   # create the slug
   def create
+    return request_error(NoMethodError.new('Missing origin_url')) unless params[:slug].try(:[], :origin_url).present?
+
+    origin_url = params[:slug][:origin_url]
+    slugified_slug = params[:slug].try(:[], :slugified_slug)
+
+    new_slug = Slug.new(origin_url: origin_url, slugified_slug: slugified_slug)
+    new_slug.save
+    render json: { slug: new_slug }, status: 200
   end
 
   # update the slug
   def update
   end
 
-
-
-
-
   def api_status
     render json: { success: true }, status: 200
   end
 
   private
+
+  def request_error(e)
+    render json: { error: e.message }, status: 400
+  end
 
   def slug_params
     params.require(:slug).permit(:slugified_slug, :active)

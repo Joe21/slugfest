@@ -5,6 +5,7 @@ class CreateSlugs < ActiveRecord::Migration[6.0]
       t.string :slugified_slug
       t.boolean :active, default: true
       t.index ["origin_url"], name: "index_origin_url_on_slug", unique: true
+      t.index ["slugified_slug"], name: "index_slugified_slug_on_slug", unique: true
     end
   end
 end
