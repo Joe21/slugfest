@@ -16,10 +16,9 @@ gem 'sqlite3', '~> 1.4'
 
 group :development, :test do
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
-  # gem 'factory_bot'
-  # gem 'faker'
+  gem 'faker'
   gem 'rspec-rails', '~> 4.0.0'
-  # gem 'shoulda-matchers', git: 'https://github.com/thoughtbot/shoulda-matchers'
+  gem 'shoulda-matchers', git: 'https://github.com/thoughtbot/shoulda-matchers'
 end
 
 group :development do

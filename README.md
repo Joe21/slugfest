@@ -18,12 +18,29 @@
     - shorten
 
 # Slug Table / Model
-- original_value
-- slugified_value
-- parent_slug
-- is_active
+- origin_slug, string
+- slugified_slug. string
+- is_active: boolean
+- parent_slug_id :default null, index
 - users should be able to hit the slugified ex:
   'https://reqres.in/api/users?page=2'
+
+
+Tasks
+- Slug table
+- Slug model
+
+- create custom slug
+  - slug should be slugified
+- separate route to slugify
+- update a slug
+- delete a slug
+- open url and get directed
+
+
+Bonus: slug tree
+  -  
+
 
 -----
 
