@@ -18,7 +18,7 @@
     - shorten
 
 # Slug Table / Model
-- origin_slug, string
+- origin_url, string
 - slugified_slug. string
 - is_active: boolean
 - parent_slug_id :default null, index
@@ -38,9 +38,12 @@ Tasks
 - open url and get directed
 
 
-Bonus: slug tree
-  -  
-
+Bonus:
+- slug tree
+- polymoprhic table
+- move to slugable concern and include in other polymorphic models
+- auto complete slugs for search
+- sanitization / normalization for protocol logic... http / https
 
 -----
 
@@ -63,4 +66,3 @@ Project Requirements:
 - The project should include an automated test suite.
 - The project should include a README file with instructions for running the web service and its tests. You should also use the README to provide context on choices made during development.
 - The project should be packaged as a zip file or submitted via a hosted git platform (Github, Gitlab, etc).
-

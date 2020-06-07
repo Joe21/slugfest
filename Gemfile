@@ -11,7 +11,7 @@ gem 'bootsnap', '>= 1.4.2', require: false
 gem 'pry'
 gem 'puma', '~> 4.1'
 gem 'rails', '~> 6.0.3'
-gem "sentry-raven"
+# gem "sentry-raven"
 gem 'sqlite3', '~> 1.4'
 
 group :development, :test do
