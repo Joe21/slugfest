@@ -50,7 +50,7 @@ Bonus:
 - ensure slugs only writes slugified strings to slug table
 - SQLite3 "Ilike not allowed"
 - limitations of slug collision resolver - "more prison time for tekashi-69"
-
+- decouple update + deactivate but im lazy
 -----
 
 ##### SPECS

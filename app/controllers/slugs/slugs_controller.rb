@@ -16,7 +16,6 @@ class Slugs::SlugsController < ApplicationController
     render json: { slugified_slug: slugified }, status: 200
   end
 
-  # create the slug
   def create
     return request_error(NoMethodError.new('Missing origin_url')) unless params[:slug].try(:[], :origin_url).present?
 
@@ -28,8 +27,16 @@ class Slugs::SlugsController < ApplicationController
     render json: { slug: new_slug }, status: 200
   end
 
-  # update the slug
   def update
+    begin
+      slugified_slug = slug_params[:slugified_slug]
+      slug = Slug.find_by(slugified_slug: slugified_slug)
+      slug.update(slug_params)
+    rescue StandardError => e
+      return request_error(e)
+    end
+
+    render json: { slug: slug }, status: 200
   end
 
   def api_status
