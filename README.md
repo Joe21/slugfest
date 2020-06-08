@@ -43,26 +43,35 @@ Our `slugs` table was set to as a polymorphic relationship storing `slugable_id`
 
 In addition, most the slug's private methods & functionality was actually encapsulated into a `slugable` concern which we used to easily provide slugable support to our desired resource. 
 
-Note that we also allowed the same `slugified_slug` value to exist as long as there were on different slugable_types!
+Note that we also allowed the same `slugified_slug` value to exist on different slugable_types! This allowed more stakeholders the flexibility of not having to worry about squatting on topic slug names.
 
 
 #### 2. CUSTOMIZE SLUGS WITH QUICK FEEDBACK
-Editorial and other stakeholders signified the need to be able to customize and preview slugs in real time prior to publishing. It became obvious that individual and collaborate workflow was extremely hard to predict and the need for backend to handle slugification idompontently was obvious.
+Editorial and other stakeholders signified the need to be able to customize and preview slugs in real time prior to publishing. 
 
-Some users would leave their clientside CMS form open and return hours later only to learn a different editor had "stolen" their slug. Others were perfectionists and consistently republished content multiple times changing slugs on the fly.
+Some users would leave their clientside CMS form open and return hours later only to learn a different editor had "stolen" their slug. Others were perfectionists and consistently republished content multiple times changing slugs on the fly. Supervising editors were constantly reviewing work and correcting typo's post publication as well. 
 
-The preview feedback of a slugified slug allowed users to know what the recommended slug would be, an endpoint to query and preview their desired slug, as well as ensure a rules engine to prevent slugs from colliding.
+He quickly learned that the slugification process had to be idempotent and had to really encapsulated all the logic to allow clients to be as abstract and clueless about this process as possible.
+
+The preview feedback of a slugified slug allowed users to know what the recommended slug would be, an endpoint to query and preview their desired slug, as well as ensure a rules engine to prevent slugs from colliding. This sort functionality played particularly well in Graphql as you could create a query with interfaces to tack on additional fields, or utilize the relay api to allow refetch containers, alleviating the need to make redundant separate queries from the client side (forms did not have to care about this state at all).
 
 ## 3. SLUG TREE
-This was by the far the biggest slug requirement we dealt with at Cheddar. Although this current implemenetation does not include it, the slug mechanisms provided here were some of the most difficult challenges to overcome for our most daunting feature.
+This was by the far the biggest slug requirement we dealt with at Cheddar. Although this current implemenetation does not include it, the slug mechanisms provided here were some of the most difficult challenges to overcome for our most daunting feature request.
 
 Editors wanted a slug on an article and a video. 
 
 `article.slug = "garbage_smells"`
 `video.slug = "garbage_smells"`
 
-What if an article attached a video before or post publication?
-- We needed to be able to preserve the original slug values per resource while also allowing slugs to be attached and detached from another.
+What if a video was attached/detached to a video? How could we re-assign all the video slugs over while preserving the ability to also detach that relationship.
+
+All video slugs pointing to the `garbage_smells` video (`garbage_smells-1`, `garbage_smells-6`, `stinky_garbage`) must continue to point to that video. 
+
+All article slugs pointing to the `garbage_smells` article (`garbage_smells-1`, `garbage_smells-2`, `stinky_garbage`, `stinky_garbage-1`) must continue to point to that article.
+
+However, all those videos slugs must be able to point to the article's parent slug if we attach that video to the article. 
+
+We also need to retain each resources' previous slug lineage should we detach a video from an article. 
 
 We accomplished this by also adding a self_referencing indexed column to `slugs` via `parent_slug_id`.
 
